@@ -1,0 +1,546 @@
+<link rel="stylesheet" href="/assets/base.css">
+<style>
+.grid4-item {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    height:90%;
+}
+
+.cc {
+    width:80%;
+    background-color:transparent;
+    border:none;
+}
+
+p {
+    margin:0;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+}
+
+.active {
+    color: #fff;
+    background-color: #000;
+}
+
+.active-main {
+    color: #000;
+    background-color: #fff;
+}
+
+.inactive-main {
+    color: #fff;
+}
+
+.dropbtn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.dropdown {
+  position: relative;
+  width: 21%;
+  
+  /* display: inline-block; */
+  margin: 10px;
+  right:0;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  /* right: 0; */
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown:hover .dropbtn {
+  background-color: #3e8e41;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 40px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+table{
+    font-family: Mono;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    text-align: left;
+    padding: 8px;
+}
+
+.modal-p {
+    font-family: Mono;
+}
+
+#dropdown {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: Mono;
+}
+
+</style>
+<script src="/assets/chart.min.js"></script>
+<script src="/assets/moment.min.js"></script>
+<body style="background-color:black; opacity: 0;">
+    <div class="page">
+        <div style="position:absolute;left:0;height:100%;width:50%;top:0;" id="back"></div>
+        <div class="grid4" style="width:80%;height:80%;font-family: Mono;z-index:1;"id="h2-ch4">
+            <div class="grid4-item" id="h2_div">
+                <h3>H2</h3>
+                <p><span id="H2-start"></span>&#x2192;<span id="H2-end"></span></p>
+                <p>avg:<span id="H2-avg"></span></p>
+                <div><canvas id="H2-graph"></canvas></div>
+            </div>
+            <div class="grid4-item" id="co_div">
+                <h3>CO</h3>
+                <p><span id="CO-start"></span>&#x2192;<span id="CO-end"></span></p>
+                <p>avg:<span id="CO-avg"></span></p>
+                <div><canvas id="CO-graph"></canvas></div>
+            </div>
+            <div class="grid4-item" id="co2_div">
+                <h3>CO2</h3>
+                <p><span id="CO2-start"></span>&#x2192;<span id="CO2-end"></span></p>
+                <p>avg:<span id="CO2-avg"></span></p>
+                <div><canvas id="CO2-graph"></canvas></div>
+            </div>
+            <div class="grid4-item" id="ch4_div">
+                <h3>CH4</h3>
+                <p><span id="CH4-start"></span>&#x2192;<span id="CH4-end"></span></p>
+                <p>avg:<span id="CH4-avg"></span></p>
+                <div><canvas id="CH4-graph"></canvas></div>
+            </div>
+        </div>
+        <div style="width:100%;height:80%;font-family: Mono;z-index:1;display: none;" id="oh-lpg">
+            <div style="font-size: 30px;height:50%;margin: 15px;margin-bottom:4px;background-color: rgba(255, 255, 255, 0.8);padding:5px;padding-top:20px;padding-bottom: 30px;">
+                <div style="width: 100%;text-align: center;margin:5px;color: black;">Temperature profile</div>
+                <canvas id="thermo-chart"></canvas>
+            </div>
+            <div style="display: grid;grid-template-columns: 50% 50%;">
+            <div style="font-size: 30px;margin: 4px 4px 15px 15px;background-color: rgba(255, 255, 255, 0.8);padding:5px;padding-top:20px;padding-bottom: 10px;">
+                <div style="width: 100%;text-align:center;margin:5px;color: black;">Airflow</div>
+                <canvas id="airflow-chart"></canvas>
+            </div>
+            <div style="font-size: 30px;margin: 4px 15px 15px 4px;background-color: rgba(255, 255, 255, 0.8);padding:5px;padding-top:20px;padding-bottom: 10px;">
+                <div style="width: 100%;text-align:center;margin:5px;color: black;">Pressure</div>
+                <canvas id="pressure-chart"></canvas>
+            </div>
+            </div>
+        </div>
+        <div id="details" class="modal">
+            <div class="modal-content">
+              <span class="close" id="close-modal">&times;</span>
+              <h3 class="modal-p" style="margin-bottom: 10px;" id="modal_header">H2 (Hydrogen)</h3>
+              <div id="overview">
+              <div style="margin-bottom:10px;justify-content: center;text-align: center;font-weight: bold;font-family: Mono;">
+              Start&#x2192;Stop: <span id="modal_start"></span>&#x2192;<span id="modal_end" style="margin-right: 5px;"></span>
+              Range: <span id="modal_low"></span>~<span id="modal_high"></span><br>
+              Average: <span id="modal_avg" style="margin-right: 5px;"></span>
+            </div>
+              <table style="width:100%;justify-content: center;" id="table">
+                <tr style="background-color: #eee;">
+                    <th>Sensor</th>
+                    <th>ID</th>
+                    <th>Range</th>
+                    <th>Average</th>
+                </tr>
+                <tr id="sensor_11">
+                    <td rowspan="3" id="sensor_1_name">MQ0</td>
+                    <td>1</td>
+                    <td><span id="11_low">20,000</span>~<span id="11_high">20,000</span></td>
+                    <td><span id="11_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_12">
+                    <td>2</td>
+                    <td><span id="12_low">20,000</span>~<span id="12_high">20,000</span></td>
+                    <td><span id="12_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_13">
+                    <td>3</td>
+                    <td><span id="13_low">20,000</span>~<span id="13_high">20,000</span></td>
+                    <td><span id="13_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_21">
+                    <td rowspan="3" id="sensor_2_name">MQ0</td>
+                    <td>1</td>
+                    <td><span id="21_low">20,000</span>~<span id="21_high">20,000</span></td>
+                    <td><span id="21_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_22">
+                    <td>2</td>
+                    <td><span id="22_low">20,000</span>~<span id="22_high">20,000</span></td>
+                    <td><span id="22_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_23">
+                    <td>3</td>
+                    <td><span id="23_low">20,000</span>~<span id="23_high">20,000</span></td>
+                    <td><span id="23_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_31">
+                    <td rowspan="3" id="sensor_3_name">MQ0</td>
+                    <td >1</td>
+                    <td><span id="31_low">20,000</span>~<span id="31_high">20,000</span></td>
+                    <td><span id="31_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_32">
+                    <td>2</td>
+                    <td><span id="32_low">20,000</span>~<span id="32_high">20,000</span></td>
+                    <td><span id="32_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_33">
+                    <td>3</td>
+                    <td><span id="33_low">20,000</span>~<span id="33_high">20,000</span></td>
+                    <td><span id="33_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_41">
+                    <td rowspan="3" id="sensor_4_name">MQ0</td>
+                    <td>1</td>
+                    <td><span id="41_low">20,000</span>~<span id="41_high">20,000</span></td>
+                    <td><span id="41_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_42">
+                    <td>2</td>
+                    <td><span id="42_low">20,000</span>~<span id="42_high">20,000</span></td>
+                    <td><span id="42_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_43">
+                    <td>3</td>
+                    <td><span id="43_low">20,000</span>~<span id="43_high">20,000</span></td>
+                    <td><span id="43_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_51">
+                    <td rowspan="3" id="sensor_5_name">MQ0</td>
+                    <td>1</td>
+                    <td><span id="51_low">20,000</span>~<span id="51_high">20,000</span></td>
+                    <td><span id="51_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_52">
+                    <td>2</td>
+                    <td><span id="52_low">20,000</span>~<span id="52_high">20,000</span></td>
+                    <td><span id="52_average">20,000</span></td>
+                </tr>
+                <tr id="sensor_53">
+                    <td>3</td>
+                    <td><span id="53_low">20,000</span>~<span id="53_high">20,000</span></td>
+                    <td><span id="53_average">20,000</span></td>
+                </tr>
+              </table>
+              <div id="error_text" style="display: none;font-size: 15x;font-style: italic;color: rgb(156, 155, 155);font-family: Mono;margin-top: 50px;margin-bottom: 50px;text-align: center;justify-content: center;"><p style="text-align: center;">Null; Sensor data does not exist.</p></div>
+              </div>
+              <div id="sensor_details" style="display:none;">
+                <div style="justify-content:space-between;text-align:center;align-items:center; font-family:OpenSans; margin-top:20px;margin-bottom:10px;display: flex;">
+                    <div class="select">
+                        <select id="chartSelector" onchange="updateChart()">
+                            <option value="data1" id="data1" selected="selected">MQ2</option>
+                            <option value="data2" id="data2">MQ4</option>
+                            <option value="data3" id="data3">MQ6</option>
+                            <option value="data4" id="data4">MQ7</option>
+                            <option value="data5" id="data5">MQ8</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div style="padding:8px;display: inline-block;border:1px solid #36a2eb;background-color: #36a2eb;" id="legend_1-btn">MQ2_1</div>
+                        <div style="padding:8px;display:inline-block;border:1px solid #ff6384;background-color: #ff6384;" id="legend_2-btn">MQ2_2</div>
+                        <div style="padding:8px;display:inline-block;border:1px solid #ffcd56;background-color: #ffcd56;" id="legend_avg-btn">Average</div>
+                    </div>
+                </div>
+                <canvas id="sensor-graph"></canvas>
+              </div>
+              <div style="justify-content:center;text-align:center;align-items:center; font-family:OpenSans; margin-top:30px;"><div style="padding:8px;display: inline-block;border:1px solid #000;" class="active" id="overview-btn">Overview</div><div style="margin-left:5px;padding:8px;display:inline-block;border:1px solid #000;" id="graph-btn">Graph</div></div>
+            </div>
+          
+          </div>
+    </div>
+    <img style="position:absolute;left:5vw;top:5vw;width:8vw;height:8vw;z-index:1;transition:0.3s;" src="/assets/Hamburger.png" onclick="redirectSmooth('/')" id="hamburger">
+    <div style="position:absolute;right:0%;bottom:3.5vw;justify-content: center;font-family: OpenSans;font-size: 20px;display:flex;justify-content:center;width:98%;z-index:1;">
+        <div id="h2-ch4-btn" style="text-align: center;width:100px;padding: 10px;padding-left: 20px;padding-right: 20px;border: 3px solid #fff;margin-right:20px;" class="active-main"> H2Nose </div>
+        <div id="oh-lpg-btn" style="text-align: center;margin-right:15px;width:100px;padding: 10px;padding-left: 20px;padding-right: 20px;border: 3px solid #fff;" class="inactive-main"> Gasifier </div>
+    </div>
+    <script src="/assets/FART.MAX.JS"></script>
+    <script src="/assets/dataviewer_file.js"></script>
+    <script>animating = false;
+
+        const sensor = {
+            "H2": ["MQ2", "MQ4", "MQ6", "MQ7", "MQ8"],
+            "CO": ["MQ2", "MQ7"],
+            "CO2": ["MG811"],
+            "CH4": ["MQ2", "MQ4", "MQ9"],
+        }
+        
+        function timerecord(timestamps) {
+            tr = [];
+            dt = 0;
+            for (v in timestamps) {
+                vr = Math.round(v)
+                tr.push(vr)
+                dt += vr
+            }
+            const timeLabels = tr.map(timestamp => {
+                const duration = moment.duration((timestamp - tr[0]) * 2, 'seconds');
+                return duration.minutes() + ':' + duration.seconds();
+            });
+            return timeLabels
+        }
+        
+        function homeData(data, gas) {
+            var vObj = {}
+            if (gas === "H2") {
+                gd = []
+                gl = []
+                dt = 0
+                for (v of data.data) {
+                    vr = Math.round((v["MQ2_H2_1"] + v["MQ2_H2_2"] + v["MQ4_H2_1"] + v["MQ4_H2_2"] + v["MQ6_H2_1"] + v["MQ6_H2_2"] + v["MQ7_H2_1"] + v["MQ7_H2_2"] + v["MQ8_H2_1"] + v["MQ8_H2_2"]) / 10);
+                    gd.push(vr);
+                    gl.push(v.t)
+                    dt += vr;
+                }
+                vObj.avg = Math.round(dt / gd.length)
+                vObj.gl = gl
+                vObj.low = Math.min(...gd)
+                vObj.high = Math.max(...gd)
+                vObj.start = (data.data[0]["MQ2_H2_1"] + data.data[0]["MQ2_H2_2"] + data.data[0]["MQ4_H2_1"] + data.data[0]["MQ4_H2_2"] + data.data[0]["MQ6_H2_1"] + data.data[0]["MQ6_H2_2"] + data.data[0]["MQ7_H2_1"] + data.data[0]["MQ7_H2_2"] + data.data[0]["MQ8_H2_1"] + data.data[0]["MQ8_H2_2"]) / 10
+                vObj.end = (data.data[data.data.length - 1]["MQ2_H2_1"] + data.data[data.data.length - 1]["MQ2_H2_2"] + data.data[data.data.length - 1]["MQ4_H2_1"] + data.data[data.data.length - 1]["MQ4_H2_2"] + data.data[data.data.length - 1]["MQ6_H2_1"] + data.data[data.data.length - 1]["MQ6_H2_2"] + data.data[data.data.length - 1]["MQ7_H2_1"] + data.data[data.data.length - 1]["MQ7_H2_2"] + data.data[data.data.length - 1]["MQ8_H2_1"] + data.data[data.data.length - 1]["MQ8_H2_2"]) / 10
+            } else if (gas === "CO2") {
+                gd = []
+                gl = []
+                dt = 0
+                for (v of data.data) {
+                    vr = Math.round((v['MG811_CO2_1'] + v['MG811_CO2_2']) / 2);
+                    gd.push(vr);
+                    gl.push(v.t)
+                    dt += vr;
+                }
+                vObj.avg = Math.round(dt / gd.length)
+                vObj.gl = gl
+                vObj.low = Math.min(...gd)
+                vObj.high = Math.max(...gd)
+                vObj.start = (data.data[0]["MG811_CO2_1"] + data.data[0]["MG811_CO2_2"]) / 2
+                vObj.end = (data.data[data.data.length - 1]["MG811_CO2_1"] + data.data[data.data.length - 1]["MG811_CO2_2"]) / 2
+            } else if (gas === "CO") {
+                gd = []
+                gl = []
+                dt = 0
+                for (v of data.data) {
+                    vr = Math.round((v['MQ2_CO_1'] + v['MQ2_CO_2'] + v['MQ7_CO_1'] + v['MQ7_CO_2']) / 4);
+                    gd.push(vr);
+                    gl.push(v.t)
+                    dt += vr;
+                }
+                vObj.avg = Math.round(dt / gd.length)
+                vObj.gl = gl
+                vObj.low = Math.min(...gd)
+                vObj.high = Math.max(...gd)
+                vObj.start = (data.data[0]["MQ2_CO_1"] + data.data[0]["MQ2_CO_2"] + data.data[0]["MQ7_CO_1"] + data.data[0]["MQ7_CO_2"]) / 4
+                vObj.end = (data.data[data.data.length - 1]["MQ2_CO_1"] + data.data[data.data.length - 1]["MQ2_CO_2"] + data.data[data.data.length - 1]["MQ7_CO_1"] + data.data[data.data.length - 1]["MQ7_CO_2"]) / 4
+            } else if (gas === "CH4") {
+                gd = []
+                gl = []
+                dt = 0
+                for (v of data.data) {
+                    vr = Math.round((v['MQ2_CH4_1'] + v['MQ2_CH4_2'] + v['MQ4_CH4_1'] + v['MQ4_CH4_2'] + v['MQ9_CH4_1'] + v['MQ9_CH4_2']) / 6);
+                    gd.push(vr);
+                    gl.push(v.t)
+                    dt += vr;
+                }
+                vObj.avg = Math.round(dt / gd.length)
+                vObj.gl = gl
+                vObj.low = Math.min(...gd)
+                vObj.high = Math.max(...gd)
+                vObj.start = (data.data[0]["MQ2_CH4_1"] + data.data[0]["MQ2_CH4_2"] + data.data[0]["MQ4_CH4_1"] + data.data[0]["MQ4_CH4_2"] + data.data[0]["MQ9_CH4_1"] + data.data[0]["MQ9_CH4_2"]) / 6
+                vObj.end = (data.data[data.data.length - 1]["MQ2_CH4_1"] + data.data[data.data.length - 1]["MQ2_CH4_2"] + data.data[data.data.length - 1]["MQ4_CH4_1"] + data.data[data.data.length - 1]["MQ4_CH4_2"] + data.data[data.data.length - 1]["MQ9_CH4_1"] + data.data[data.data.length - 1]["MQ9_CH4_2"]) / 6
+            }
+            return vObj
+        }
+        
+        function simplifyData(data) {
+            const simplifiedData = [];
+            for (const obj of data) {
+                const simplifiedObj = {};
+                for (const key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        const gasType = key.split('_')[1];
+                        if (simplifiedObj.hasOwnProperty(gasType)) {
+                            simplifiedObj[gasType] += obj[key];
+                        } else {
+                            simplifiedObj[gasType] = obj[key];
+                        }
+                    }
+                }
+                for (const gasType in simplifiedObj) {
+                    if (simplifiedObj.hasOwnProperty(gasType)) {
+                        const sensorCount = Object.keys(simplifiedObj).length;
+                        simplifiedObj[gasType] = Math.round(simplifiedObj[gasType] / (sensorCount / 2));
+                    }
+                }
+        
+                simplifiedData.push(simplifiedObj);
+            }
+        
+            console.log(simplifiedData)
+            return simplifiedData;
+        }
+        
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    data = JSON.parse(this.responseText);
+                    const dataSimplified = simplifyData(data.data)
+                    try {
+                        console.log(data.data[0]['H2'])
+                        sensor_exist_a = true;
+                        // sensor_exist = true;
+                    } catch (err) {
+                        try {
+                            console.log(data.data['0']['hasSensorValue'] + "and" + data.data['0']['H2'])
+                            sensor_exist_b = true
+                        } catch (err) {
+                            sensor_exist = false;
+                        }
+                    }
+                    if (sensor_exist_a) {
+                        for (i of ['H2', 'CO', 'CO2', 'CH4']) {
+                            const hd = homeData(data, i)
+                            const avg = document.getElementById(i + '-avg')
+                            const graph = document.getElementById(i + '-graph')
+                            start = hd.start
+                            end = hd.end
+                            document.getElementById(i + '-start').textContent = start.toFixed(0);
+                            document.getElementById(i + '-end').textContent = end.toFixed(0);
+                            avg.textContent = hd.avg;
+                            new Chart(
+                                graph, {
+                                    type: 'line',
+                                    data: {
+                                        labels: timerecord(hd.gl),
+                                        datasets: [{
+                                            label: i,
+                                            tension: 0,
+                                            data: gd
+                                        }]
+                                    },
+                                    options: {
+                                        plugins: {
+                                            legend: {
+                                                display: false
+                                            }
+                                        }
+                                    }
+                                }
+                            );
+                        }
+                    } else {
+                        for (i of ['H2', 'CO', 'CO2', 'CH4']) {
+                            document.getElementById(i + '-start').textContent = data.data[0][i].toFixed(0);
+                            document.getElementById(i + '-end').textContent = data.data[data.data.length - 1][i].toFixed(0);
+                            gd = [];
+                            gl = [];
+                            dt = 0;
+                            for (v of data.data) {
+                                vr = Math.round();
+                                gd.push(vr);
+                                gl.push(v.t);
+                                dt += vr;
+                            }
+                            document.getElementById(i + '-avg').textContent = Math.round(dt / gd.length);
+                            console.log(gd);
+                            console.log(gl);
+                            new Chart(
+                                document.getElementById(i + '-graph'), {
+                                    type: 'line',
+                                    data: {
+                                        labels: gd,
+                                        datasets: [{
+                                            label: i,
+                                            tension: 0,
+                                            data: gd
+                                        }]
+                                    },
+                                    options: {
+                                        plugins: {
+                                            legend: {
+                                                display: false
+                                            }
+                                        }
+                                    }
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+            xhttp.open("GET", "/f/get?fn={{filename}}");
+            xhttp.send();
+            document.body.style.opacity = 1;
+            setTimeout(() => {
+                document.body.style.transition = '0s';
+            }, 1000);
+        });
+    </script>
+    <script>
+        function redirectSmooth(url){
+            if(animating){return;}
+            animating = true;
+            document.body.style.transition = '1s';
+            document.body.style.opacity = 0;
+            setTimeout(()=>{window.location.href = url;}, 1000);
+        }
+
+        document.getElementById('back').addEventListener('click', ()=>{redirectSmooth('/view');})
+    </script>
+</body>

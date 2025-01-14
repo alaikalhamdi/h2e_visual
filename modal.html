@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<style>
+p {
+    margin: 0;
+}
+
+.modal {
+    /* display: none; */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+  }
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+  
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 40px;
+    font-weight: bold;
+}
+  
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+select {
+    appearance: none;
+    outline: 10px red;
+    border: 0;
+    box-shadow: none;
+    flex: 1;
+    padding: 0 1em;
+    color: black;
+    background-color: #f0f0f0;
+    background-image: none;
+    cursor: pointer;
+  }
+  select::-ms-expand {
+    display: none;
+  }
+  .select {
+    position: relative;
+    display: flex;
+    width: 10em;
+    height: 2.5em;
+    border-radius: .25em;
+    overflow: hidden;
+  }
+  .select::after {
+    content: '\25BC';
+    position: absolute;
+    top: 25%;
+    right: 1em;
+    padding: 0em;
+    color: #7e7e7e;
+    background-color: #f0f0f0;
+    transition: .25s all ease;
+    pointer-events: none;
+  }
+  .select:hover::after {
+    color: #888;
+  }
+</style>
+<div id="details" class="modal">
+    <div class="modal-content">
+      <h3 class="modal-p" style="margin-bottom: 10px;" id="modal_header">Detailed Sensor Data</h3>
+    <div id="sensor-tab">
+      <div style="display: flex;justify-content: space-evenly;margin-bottom: 30px;font-size: 20px;align-items: center;">
+        <div style="display: flex;justify-content: space-evenly;font-size: 20px;">
+          <span style="padding: 10px 0px 10px 0px;">View As:</span>
+          <div id="sensor-btn" onclick="saveModal('test-tab')" style="padding: 10px 10px 10px 10px;border: 1px solid #000;margin: 0px 5px 0px 10px;">Sensor</div>
+          <div id="gas-btn" onclick="saveModal('dataset-tab')" style="padding: 10px 10px 10px 10px;border: 1px solid #000;margin: 0px 10px 0px 5px;">Gas</div>
+        </div>
+        <div class="select">
+            <select id="sensor-chartSelector" onchange="updateChart()">
+                <option value="sdata1" id="sdata1" selected="selected">All</option>
+                <option value="sdata2" id="sdata2">MQ2</option>
+                <option value="sdata3" id="sdata3">MQ3</option>
+                <option value="sdata4" id="sdata4">MQ4</option>
+                <option value="sdata5" id="sdata5">MQ6</option>
+                <option value="sdata6" id="sdata6">MQ7</option>
+                <option value="sdata7" id="sdata7">MQ8</option>
+                <option value="sdata8" id="sdata8">MQ9</option>
+                <option value="sdata9" id="sdata9">MG811</option>
+            </select>
+        </div>
+      </div>
+      <canvas id="sensor-graph"></canvas>
+    </div>
+      <div style="display: flex;width: 100%;justify-content: space-evenly;font-size: 20px;">
+        <div style="padding: 10px;border: 2px solid #888;padding-left: 30px;padding-right: 30px;">Cancel</div><div style="padding: 10px;border: 2px solid #888;padding-left: 30px;padding-right: 30px;">Save</div>
+      </div>
+    </div>
+</div>

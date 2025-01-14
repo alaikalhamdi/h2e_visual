@@ -1,0 +1,88 @@
+<link rel="stylesheet" href="assets/base.css">
+<body style="background-color: black; color: white; overflow: hidden; font-family: OpenSans; opacity: 0; transition:1s;">
+    <div class="page">
+        <div id="file-list-container">
+            <div class="column-grid">
+            </div>
+        </div>
+    </div>
+    <img style="position:absolute;left:5vw;top:5vw;width:8vw;height:8vw;z-index:1;transition:0.3s;" src="/assets/Hamburger.png" onclick="redirectSmooth('/')" id="hamburger">
+    <script>
+        template = document.createElement('div');
+
+        file = document.createElement('div')
+        file.classList.add('file');
+
+        tools = document.createElement('div');
+        trash = document.createElement('img');
+        trash.src = './assets/TrashCan.svg';
+        tools.append(trash)
+        tools.classList.add('tools');
+
+        template.append(file);
+        template.append(tools);
+
+        animating = false;
+
+        document.addEventListener('DOMContentLoaded', ()=>{
+            xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    files = JSON.parse(xhttp.responseText);
+                    filelist = document.getElementsByClassName('column-grid')[0];
+                    for(i of Object.keys(files)){
+                        file = template.cloneNode(true);
+                        file.childNodes[0].textContent = i;
+                        file.childNodes[0].title = i;
+                        file.childNodes[0].addEventListener('click', getRedirectFunction(i));
+                        file.childNodes[1].childNodes[0].addEventListener('click', getDeleteFunction(i, file));
+                        filelist.append(file);
+                    }
+                    if(files.length == 0){
+                        notfound = document.createElement('h1');
+                        notfound.textContent = 'No Files Found';
+                        filelist.replaceWith(notfound);
+                    }
+                }
+            }
+            xhttp.open('GET', '/f/names', true);
+            xhttp.send();
+            document.body.style.opacity = 1;
+            setTimeout(()=>{
+                document.body.style.transition = '0s';
+            }, 1000);
+        });
+
+        getDeleteFunction = (i, f)=>{
+            return (()=>{
+                if(confirm('Delete '+i+'?')){
+                    delhttp = new XMLHttpRequest();
+                    delhttp.onreadystatechange = function() {
+                        if (this.readyState == 4) {
+                            if(this.status == 200){
+                                f.remove();
+                            } else if (this.status == 404){
+                                alert('Failed to remove '+i);
+                            }
+                        } 
+                    }
+                    delhttp.open('GET', '/f/del?fn='+i);
+                    delhttp.send();
+                }
+            })
+        }
+
+        getRedirectFunction = (i) => {
+            return ()=>{if(animating){return};animating=true;window.location.href = './view/'+i;}
+        }
+    </script>
+    <script>
+        function redirectSmooth(url){
+            if(animating){return;}
+            animating = true;
+            document.body.style.transition = '1s';
+            document.body.style.opacity = 0;
+            setTimeout(()=>{window.location.href = url;}, 1000);
+        }
+    </script>
+</body>
